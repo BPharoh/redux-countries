@@ -7,26 +7,35 @@ import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Row from 'react-bootstrap/Row';
+import Button from 'react-bootstrap/Button';
 import { LinkContainer } from 'react-router-bootstrap';
 import {initializeCountries} from "../features/countriesSlice";
+import { clearFavourites } from "../features/favouritesSlice";
 import CardImg from 'react-bootstrap/esm/CardImg';
 import Spinner from 'react-bootstrap/Spinner';
-import { addFavourite } from '../features/favouritesSlice';
 
 
 
 
-const Countries = () => {
+
+const Favourites = () => {
   const dispatch = useDispatch();
 
-  const countriesList = useSelector((state) => state.countries.countries)
+  let countriesList = useSelector((state) => state.countries.countries)
   const loading = useSelector((state) => state.countries.isLoading)
   const [search, setSearch] = useState('')
+  const [favouritesList, setFavouritesList] = useState([])
 
-
+if ( favouritesList !== null){
+    countriesList = countriesList.filter(c => favouritesList.includes(c.name.common))
+}
+else {
+    countriesList = [];
+}
 
   useEffect(() => {
     dispatch(initializeCountries())
+    setFavouritesList(localStorage.getItem('favourites'))
   },[dispatch])
 
   
@@ -50,6 +59,11 @@ const Countries = () => {
       
       <Row xs={2} md={3} lg={4} className="g-3">
         {(loading) ? <Spinner animation="border" variant="primary"  /> : ''}
+      <Row xs={2} md={3} lg={4} className="g-3">
+        <Button onClick = {()=> { dispatch(clearFavourites())
+        }}
+        >Clear Favourties</Button>
+      </Row>
         
       
         {countriesList.filter((c) => {
@@ -66,7 +80,7 @@ const Countries = () => {
             
             <Card className="h-100">
               <Card.Body className="d-flex flex-column">
-              <i class="bi bi-emoji-kiss-fill text-danger m-1 p-1" onClick={() => dispatch(addFavourite(country.name.common))}/>
+
                 <CardImg src={country.flags.svg}></CardImg>
             
                 <Card.Title>{country.name.common}</Card.Title>
@@ -108,4 +122,4 @@ const Countries = () => {
 };
                 
 
-export default Countries;
+export default Favourites;
